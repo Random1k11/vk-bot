@@ -1,8 +1,9 @@
-import pika
-import pika
-from vk import Answer
 import json
 from time import sleep
+
+import pika
+
+from vk import Answer
 
 
 def check_file():
@@ -10,15 +11,20 @@ def check_file():
         data = json.load(file)
         return data
 
+
 while True:
     credentials = pika.PlainCredentials('guest', 'guest')
-    connection = pika.BlockingConnection(pika.ConnectionParameters('localhost', 5672, '/', credentials))
+    connection = pika.BlockingConnection(pika.ConnectionParameters(
+        'rabbitmq', 5672, '/', credentials)
+    )
     channel = connection.channel()
+    channel.queue_declare(queue='my_queue')
     method_frame, header_frame, body = channel.basic_get('my_queue')
     if method_frame:
         data = check_file()
+        print(data)
         answer = Answer(data)
-        print(method_frame, header_frame, body)
+        # print(method_frame, header_frame, body)
         channel.basic_ack(method_frame.delivery_tag)
     else:
         channel.close()
@@ -29,4 +35,3 @@ while True:
         except:
             print('sleep')
             sleep(1)
-                                                                                                                                    

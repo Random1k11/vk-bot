@@ -1,5 +1,6 @@
-from flask import Response
 from json import dumps
+
+from flask import Response
 
 
 class Responses(Response):
